@@ -1,0 +1,13 @@
+[project]
+name = "publsh"
+version = "1.0.0"
+description = "CLI microblogging client"
+readme = "README.md"
+requires-python = ">=3.8"
+dependencies = [
+    "Click==8.2.1",
+    "PyYAML==6.0.2",
+    "requests==2.32.4"
+]
+[project.scripts]
+publsh = "publsh.cli:cli"

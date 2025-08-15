@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import click
+from .controller import create_post
 
 # Extend click.Group class so that the base command invokes if no subcommand is entered.
 class DefaultGroup(click.Group):
@@ -20,14 +21,25 @@ def cli():
 @cli.command()
 def post():
     """Post an entry on the publsh site."""
-    click.echo("Open Editor")
-    click.echo("New post added!")
+    content = click.edit(editor="vim")  # or omit editor= to just use $EDITOR
+    
+    if content is None:
+        click.echo("No content entered. Post aborted.")
+        return
+    content = content.strip()
+    return create_post(content.splitlines())
 
 @cli.command()
 @click.argument('id')
 def edit(id):
     """Edit an existing post with its number."""
     click.echo(f"Editing post #{id}")
+
+@cli.command()
+@click.argument('id')
+def delete(id):
+    """Delete post with given ID"""
+    click.echo(f"Deleting post #{id}")
 
 if __name__ == '__main__':
     cli()
