@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import click
-from .controller import create_post
+from .controller import create_post, delete_post
 
 # Extend click.Group class so that the base command invokes if no subcommand is entered.
 class DefaultGroup(click.Group):
@@ -36,10 +36,12 @@ def edit(id):
     click.echo(f"Editing post #{id}")
 
 @cli.command()
-@click.argument('id')
-def delete(id):
+@click.argument('post_id', type=int)
+def delete(post_id):
     """Delete post with given ID"""
-    click.echo(f"Deleting post #{id}")
+    click.echo(f"Deleting post #{post_id}")
+    result = delete_post(post_id)
+    click.echo(result)
 
 if __name__ == '__main__':
     cli()

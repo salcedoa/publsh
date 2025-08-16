@@ -34,8 +34,7 @@ def send_post(post):
         requests.post(url, json=post)
         return "Post uploaded!"
       except requests.exceptions.RequestException as e:
-         print("Nothing happened")
-         return e
+         return f"Error connecting to server: {e}"
     else:
        return "Post must not be empty"
 
@@ -47,4 +46,13 @@ def edit_post(post_id):
 
 def delete_post(post_id):
     cfg = load_config()
-    api_url = cfg.get("api_url", "http://localhost/api/delete")
+    base_url = f"{cfg.get('api_url')}:{cfg.get('port')}"
+    url = f"{base_url}/delete/{post_id}"
+    try:
+        response = requests.delete(url)
+        if response.ok:
+            return f"Post #{post_id} deleted"
+        else:
+            return f"Failed to delete post #{post_id}: {response.status_code} {response.text}"
+    except requests.exceptions.RequestException as e:
+        return f"Error connecting to server: {e}"
