@@ -39,10 +39,41 @@ def send_post(post):
        return "Post must not be empty"
 
 
-def edit_post(post_id):
-    """Simulate editing a post."""
+# To edit a post, post data must be retrieved first
+def get_post_data(post_id):
     cfg = load_config()
-    api_url = cfg.get("api_url", "http://localhost")
+    base_url = f"{cfg.get('api_url')}:{cfg.get('port')}"
+    url = f"{base_url}/post/{post_id}"
+
+    # Fetch post data
+    response = requests.get(url)
+    if not response.ok:
+        return
+
+    post = response.json()
+    original_text = f"{post['title']}\n{post["body"]}"
+    return original_text
+
+def edit_post(post_id, edited_text):
+    cfg = load_config()
+    base_url = f"{cfg.get('api_url')}:{cfg.get('port')}"
+    url = f"{base_url}/edit/{post_id}"
+
+    now = datetime.now()
+    sqlDatetime = now.strftime('%Y-%m-%d %H:%M:%S')
+
+    postJSON = {
+        "title": edited_text[0],
+        "body": ('\n'.join(edited_text[1:])).rstrip(),
+        "postTime": sqlDatetime
+    }
+
+    try:
+        requests.put(url, json=postJSON)
+        return "Post edited!"
+    except requests.exceptions.RequestException as e:
+        return f"Error connecting to server: {e}"
+
 
 def delete_post(post_id):
     cfg = load_config()

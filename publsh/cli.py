@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import click
-from .controller import create_post, delete_post
+from .controller import create_post, delete_post, get_post_data, edit_post
 
 # Extend click.Group class so that the base command invokes if no subcommand is entered.
 class DefaultGroup(click.Group):
@@ -30,16 +30,26 @@ def post():
     return create_post(content.splitlines())
 
 @cli.command()
-@click.argument('id')
-def edit(id):
-    """Edit an existing post with its number."""
-    click.echo(f"Editing post #{id}")
+@click.argument('post_id')
+def edit(post_id):
+    """Edit an existing post with its id"""
+    original_text = get_post_data(post_id)
+    if original_text:
+        click.echo(f"Editing post #{post_id}")
+        edited_text = click.edit(original_text, editor="vim")
+        if edited_text is None:
+            click.echo(f"All text deleted so deleting post")
+            delete(post_id)
+            return
+    
+    lines = edited_text.strip().splitlines()
+    edit_post(post_id, lines)
+
 
 @cli.command()
 @click.argument('post_id', type=int)
 def delete(post_id):
     """Delete post with given ID"""
-    click.echo(f"Deleting post #{post_id}")
     result = delete_post(post_id)
     click.echo(result)
 
